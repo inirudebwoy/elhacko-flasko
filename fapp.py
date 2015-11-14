@@ -35,16 +35,19 @@ def get_uuid():
 @app.route('/store/', methods=['POST'])
 def store_image():
 
-    uuid = request.json["uuid"]
-    media_uri = request.json["media_uri"]
+    if 'uuid' in request.json and 'media_uri' in request.json:
 
-    if uuid and media_uri:
+        uuid = request.json['uuid']
+        media_uri = request.json['media_uri']
+
         db = open_db()
+        
         if uuid in db:
-            db[uuid] = {"media_uri":media_uri}
+            db[uuid] = {'media_uri':media_uri}
             return jsonify(status=True, message="Media stored")
         else:
             return jsonify(status=False, message="GTFO")
+
     else:
         return jsonify(status=False, message="Bad Data")
 
