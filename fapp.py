@@ -31,18 +31,11 @@ def get_uuid():
     return generate_uuid_hex()
 
 
-@app.route('/store/<uuid>/<media_uri>/', methods=['POST'])
-def store_media(uuid, media_uri):
-
-    print "@"*30
-    print "{0}".format(request.form)
-    print "@"*30
+@app.route('/store/', methods=['POST'])
+def store_image():
 
     uuid = request.form["uuid"]
     media_uri = request.form["media_uri"]
-    print "*"*30
-    print "{0} - {1}".format(uuid, media_uri)
-    print "*"*30
 
     if uuid and media_uri:
         db = open_db()
