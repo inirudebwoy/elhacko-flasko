@@ -31,6 +31,18 @@ def get_uuid():
     return generate_uuid_hex()
 
 
+# curl -X GET "http://localhost:5000/media_uri/?uuid=33"
+@app.route('/media_uri/', methods=['GET'])
+def get_media_uri():
+    uuid = request.args.get("uuid", None)
+    db = open_db()
+    if uuid and uuid in db and db[uuid]:
+        media_uri = db[uuid]['media_uri']
+        return jsonify(status=True, uuid=uuid, media_uri=media_uri)
+    else:
+        return jsonify(status=False, uuid=uuid, media_uri=None)
+
+
 # curl -H "Content-Type: application/json" -X POST -d '{"uuid" : "33", "media_uri":"random"}' http://localhost:5000/store/
 @app.route('/store/', methods=['POST'])
 def store_image():
