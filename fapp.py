@@ -1,7 +1,7 @@
 import shelve
 from uuid import uuid4
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 
 app = Flask(__name__)
@@ -31,21 +31,22 @@ def get_uuid():
     return generate_uuid_hex()
 
 
+# curl -H "Content-Type: application/json" -X POST -d '{"uuid" : "33", "media_uri":"random"}' http://localhost:5000/store/
 @app.route('/store/', methods=['POST'])
 def store_image():
 
-    uuid = request.form["uuid"]
-    media_uri = request.form["media_uri"]
+    uuid = request.json["uuid"]
+    media_uri = request.json["media_uri"]
 
     if uuid and media_uri:
         db = open_db()
         if uuid in db:
             db[uuid] = {"media_uri":media_uri}
-            return {"status": True, "message": "Media stored"}
+            return jsonify(status=True, message="Media stored")
         else:
-            return {"status": False, "message": "GTFO"}
+            return jsonify(status=False, message="GTFO")
     else:
-        return {"status": False, "message": "Bad Data"}
+        return jsonify(status=False, message="Bad Data")
 
 if __name__ == '__main__':
     app.run(debug=True)
