@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from flask import Flask, request, jsonify
 
+from imgurpython import ImgurClient
 
 app = Flask(__name__)
 DB_PATH = 'db.shelve'
@@ -43,9 +44,10 @@ def get_media_uri():
         return jsonify(status=False, uuid=uuid, media_uri=None)
 
 
-# curl -H "Content-Type: application/json" -X POST -d '{"uuid" : "33", "media_uri":"random"}' http://localhost:5000/store/
+# curl -H "Content-Type: application/json" -X POST -d
+# '{"uuid" : "33", "media_uri":"random"}' http://localhost:5000/store/
 @app.route('/store/', methods=['POST'])
-def store_image():
+def local_save_image():
 
     if 'uuid' in request.json and 'media_uri' in request.json:
 
@@ -53,15 +55,36 @@ def store_image():
         media_uri = request.json['media_uri']
 
         db = open_db()
-        
+
         if uuid in db:
-            db[uuid] = {'media_uri':media_uri}
-            return jsonify(status=True, message="Media stored")
+            db[uuid] = {'media_uri': media_uri}
+            imgur_save = imgur_save_image(media_uri)
+            return jsonify(status=True,
+                           message="Media stored",
+                           imgur_save=imgur_save)
         else:
             return jsonify(status=False, message="GTFO")
 
     else:
         return jsonify(status=False, message="Bad Data")
+
+
+# Send to a private album in imgur
+def imgur_save_image(image_path):
+
+    client_id = '47b09d985019fe8'
+    client_secret = 'e5e578407a04d38740aa00cd02cb3b8b5bcd9c64'
+
+    client = ImgurClient(client_id, client_secret)
+
+    try:
+        image_json = client.upload_from_path(image_path,
+                                             config=None,
+                                             anon=True)
+        return {'link': image_json['link']}
+    except:
+        return False
+
 
 if __name__ == '__main__':
     app.run(debug=True)
