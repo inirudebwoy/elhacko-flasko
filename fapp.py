@@ -4,6 +4,13 @@ from uuid import uuid4
 from flask import Flask, request, jsonify
 
 from imgurpython import ImgurClient
+from imgurconf import CLIENT_ID, CLIENT_SECRET
+
+import traceback
+import logging
+logging.basicConfig(filename='log.log',
+                    level=logging.DEBUG,
+                    format='%(asctime)s %(message)s')
 
 app = Flask(__name__)
 DB_PATH = 'db.shelve'
@@ -58,10 +65,12 @@ def local_save_image():
 
         if uuid in db:
             db[uuid] = {'media_uri': media_uri}
-            imgur_save = imgur_save_image(media_uri)
+            imgur_link = imgur_save_image(media_uri)
+            save_to_file(imgur_link) if imgur_link else None
+
             return jsonify(status=True,
                            message="Media stored",
-                           imgur_save=imgur_save)
+                           imgur_link=imgur_link)
         else:
             return jsonify(status=False, message="GTFO")
 
@@ -72,8 +81,8 @@ def local_save_image():
 # Send to a private album in imgur
 def imgur_save_image(image_path):
 
-    client_id = '47b09d985019fe8'
-    client_secret = 'e5e578407a04d38740aa00cd02cb3b8b5bcd9c64'
+    client_id = CLIENT_ID
+    client_secret = CLIENT_SECRET
 
     client = ImgurClient(client_id, client_secret)
 
@@ -82,14 +91,26 @@ def imgur_save_image(image_path):
                                              config=None,
                                              anon=True)
         link = image_json['link']
+        logging.info('Image saved in imgur: {0}'.format(link))
+        return link
 
+    except:
+        logging.error('Error trying to connect to imgur.')
+        logging.error(traceback.format_exc())
+        return None
+
+
+def save_to_file(link):
+    try:
         f = open('imgur.txt', 'a')
         f.write('{0} \n'.format(link))
         f.close()
-        return {'link': link}
+        logging.info('Link saved to file.')
 
     except:
-        return False
+        logging.error('Error trying to write to file. Skipping it.')
+        logging.error(traceback.format_exc())
+        return None
 
 
 if __name__ == '__main__':
