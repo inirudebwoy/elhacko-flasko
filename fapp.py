@@ -81,7 +81,13 @@ def imgur_save_image(image_path):
         image_json = client.upload_from_path(image_path,
                                              config=None,
                                              anon=True)
-        return {'link': image_json['link']}
+        link = image_json['link']
+
+        f = open('imgur.txt', 'a')
+        f.write('{0} \n'.format(link))
+        f.close()
+        return {'link': link}
+
     except:
         return False
 

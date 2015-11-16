@@ -1,0 +1,5 @@
+// File that stores all generated links on imgur
+
+http://i.imgur.com/B8BNMPz.jpg 
+http://i.imgur.com/48nFDpL.jpg 
+http://i.imgur.com/nXufG3D.jpg 
