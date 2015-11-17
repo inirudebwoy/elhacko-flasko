@@ -5,6 +5,8 @@ from flask import Flask, request, jsonify
 
 from imgurpython import ImgurClient
 from imgur.imgurconf import CLIENT_ID, CLIENT_SECRET
+from imgur.imgurtokens import ACCESS_TOKEN, REFRESH_TOKEN
+from imgur.albumhash import ALBUM_ID
 
 import traceback
 import logging
@@ -65,12 +67,13 @@ def local_save_image():
 
         if uuid in db:
             db[uuid] = {'media_uri': media_uri}
-            imgur_link = imgur_save_image(media_uri)
-            save_to_file(imgur_link) if imgur_link else None
+            image_json = imgur_save_image_anonymously(media_uri)
+            imgur_save_image_to_users_account(image_json['id'])
+            save_to_file(image_json['link']) if image_json['link'] else None
 
             return jsonify(status=True,
                            message="Media stored",
-                           imgur_link=imgur_link)
+                           imgur_link=image_json['link'])
         else:
             return jsonify(status=False, message="GTFO")
 
@@ -78,8 +81,8 @@ def local_save_image():
         return jsonify(status=False, message="Bad Data")
 
 
-# Send to a private album in imgur
-def imgur_save_image(image_path):
+# Store anonimously in imgur
+def imgur_save_image_anonymously(image_path):
 
     client_id = CLIENT_ID
     client_secret = CLIENT_SECRET
@@ -90,12 +93,32 @@ def imgur_save_image(image_path):
         image_json = client.upload_from_path(image_path,
                                              config=None,
                                              anon=True)
-        link = image_json['link']
-        logging.info('Image saved in imgur: {0}'.format(link))
-        return link
+        logging.info('Image saved in imgur: {0}'.format(image_json['link']))
+        return image_json
 
     except:
-        logging.error('Error trying to connect to imgur.')
+        logging.error('Error trying to connect to imgur. (Image save)')
+        logging.error(traceback.format_exc())
+        return None
+
+
+# Send to a private album of your user in imgur
+def imgur_save_image_to_users_account(image_id):
+
+    client_id = CLIENT_ID
+    client_secret = CLIENT_SECRET
+    access_token = ACCESS_TOKEN
+    refresh_token = REFRESH_TOKEN
+
+    client = ImgurClient(client_id, client_secret, access_token, refresh_token)
+
+    try:
+        client.album_add_images(ALBUM_ID, [image_id])
+
+        logging.info('Image saved in album')
+
+    except:
+        logging.error('Error trying to connect to imgur. (Album save)')
         logging.error(traceback.format_exc())
         return None
 
