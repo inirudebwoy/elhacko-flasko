@@ -56,6 +56,9 @@ docs/_build/
 # PyBuilder
 target/
 
-#imgur credentials
+# imgur credentials
 imgurconf.py
 imgurtokens.py
+
+# database files
+db.shelve.db
