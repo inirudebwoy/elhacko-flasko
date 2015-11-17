@@ -4,7 +4,7 @@ from uuid import uuid4
 from flask import Flask, request, jsonify
 
 from imgurpython import ImgurClient
-from imgurconf import CLIENT_ID, CLIENT_SECRET
+from imgur.imgurconf import CLIENT_ID, CLIENT_SECRET
 
 import traceback
 import logging
@@ -102,7 +102,7 @@ def imgur_save_image(image_path):
 
 def save_to_file(link):
     try:
-        f = open('imgur.txt', 'a')
+        f = open('imgur/imgur.txt', 'a')
         f.write('{0} \n'.format(link))
         f.close()
         logging.info('Link saved to file.')
