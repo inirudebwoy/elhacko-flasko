@@ -24,8 +24,8 @@ if __name__ == '__main__':
     try:
         album = client.create_album(album_fields)
         f = open('albumhash.py', 'w')
-        f.write('ID = "{0}"\n'.format(album["id"]))
-        f.write('HASH = "{0}"\n'.format(album["deletehash"]))
+        f.write('ALBUM_ID = "{0}"\n'.format(album["id"]))
+        f.write('ALBUM_HASH = "{0}"\n'.format(album["deletehash"]))
         f.close()
         print "Album created successfully"
 
