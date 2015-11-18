@@ -13,7 +13,10 @@ def open_db():
 
 
 def generate_uuid_hex():
-    uuid = uuid4().hex
+    """
+    Generate a unique UUID and create a blank database entry for it. Returns the UUID as a string.
+    """
+    uuid = str(uuid4())
     db = open_db()
 
     if uuid in db:
@@ -46,22 +49,19 @@ def get_media_uri():
 # curl -H "Content-Type: application/json" -X POST -d '{"uuid" : "33", "media_uri":"random"}' http://localhost:5000/store/
 @app.route('/store/', methods=['POST'])
 def store_image():
+    if 'uuid' not in request.json or 'media_uri' not in request.json:
+        return jsonify(status=False, message="You must provide 'uuid' and 'media_uri'")
 
-    if 'uuid' in request.json and 'media_uri' in request.json:
+    uuid = request.json['uuid']
+    media_uri = request.json['media_uri']
 
-        uuid = request.json['uuid']
-        media_uri = request.json['media_uri']
+    db = open_db()
 
-        db = open_db()
-        
-        if uuid in db:
-            db[uuid] = {'media_uri':media_uri}
-            return jsonify(status=True, message="Media stored")
-        else:
-            return jsonify(status=False, message="GTFO")
-
+    if uuid in db:
+        db[uuid] = {'media_uri':media_uri}
+        return jsonify(status=True, message="Media stored")
     else:
-        return jsonify(status=False, message="Bad Data")
+        return jsonify(status=False, message="GTFO")
 
 if __name__ == '__main__':
     app.run(debug=True)
