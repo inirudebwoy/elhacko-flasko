@@ -35,7 +35,7 @@ def get_uuid():
 
 
 # curl -X GET "http://localhost:5000/media_uri/?uuid=33"
-@app.route('/media_uri/', methods=['GET'])
+@app.route('/media_uri', methods=['GET'])
 def get_media_uri():
     uuid = request.args.get("uuid", None)
     db = open_db()
@@ -47,12 +47,12 @@ def get_media_uri():
 
 
 # curl -H "Content-Type: application/json" -X POST -d '{"uuid" : "33", "media_uri":"random"}' http://localhost:5000/store/
-@app.route('/store/', methods=['POST'])
+@app.route('/store', methods=['POST'])
 def store_image():
     if 'uuid' not in request.json or 'media_uri' not in request.json:
         return jsonify(status=False, message="You must provide 'uuid' and 'media_uri'")
 
-    uuid = request.json['uuid']
+    uuid = str(request.json['uuid'])
     media_uri = request.json['media_uri']
 
     db = open_db()
