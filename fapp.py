@@ -1,4 +1,5 @@
 import shelve
+import argparse
 from uuid import uuid4
 
 from flask import Flask, request, jsonify
@@ -64,4 +65,10 @@ def store_image():
         return jsonify(status=False, message="GTFO")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    p = argparse.ArgumentParser()
+    p.add_argument("--debug", action="store_true", default=False)
+    p.add_argument("--host", default="127.0.0.1")
+    p.add_argument("--port", default=5000, type=int)
+    args = p.parse_args()
+
+    app.run(host=args.host, port=args.port, debug=args.debug)
