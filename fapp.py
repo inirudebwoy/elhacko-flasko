@@ -3,9 +3,11 @@ import argparse
 from uuid import uuid4
 
 from flask import Flask, request, jsonify
+from flask.ext.cors import CORS
 
 
 app = Flask(__name__)
+CORS(app)
 DB_PATH = 'db.shelve'
 
 
