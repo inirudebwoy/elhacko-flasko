@@ -56,5 +56,8 @@ docs/_build/
 # PyBuilder
 target/
 
+# Database
+*.db
+
 #imgur credentials
 imgurconf.py
